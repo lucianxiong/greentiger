@@ -1,0 +1,21 @@
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = unset
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# C# / PowerShell 源码沿用仓库既有约定：UTF-8 BOM + 4 空格缩进。
+# build.ps1 必须保留 BOM（AGENTS.md），编辑器不要把它转成无 BOM。
+[*.{cs,ps1}]
+charset = utf-8-bom
+indent_size = 4
+
+[*.{html,css,js,json,yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

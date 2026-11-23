@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>绿虎 · GreenTiger</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="theme-color" content="#f7f9f4">
+<link rel="stylesheet" href="/theme.css">
+<link rel="stylesheet" href="/garden.css?v=__GT_VERSION__">
+<script src="/shell.js"></script>
+<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar" aria-label="会话侧栏">
+    <div class="brand-row">
+      <button type="button" class="brand-mark" id="brandMark" aria-label="绿虎旋风标志 · 点击让它旋转" title="绿虎旋风 · 点我转起来"><span class="glyph-swirl" aria-hidden="true"></span></button>
+      <div class="brand-text"><strong>绿虎</strong><span>桌面 Agent</span></div>
+    </div>
+    <button class="new-session" id="newSessionBtn">
+      <span data-icon="plus"></span><span>新建会话</span><kbd>Ctrl N</kbd>
+    </button>
+    <div class="session-search" id="sessionSearchWrap">
+      <span data-icon="search"></span>
+      <input id="sessionSearch" type="search" placeholder="搜索会话" autocomplete="off" spellcheck="false" aria-label="搜索会话">
+    </div>
+    <div class="side-label">
+      <div class="side-tabs" role="tablist" aria-label="会话视图">
+        <button type="button" class="side-tab active" id="tabActive" data-session-tab="active" role="tab" aria-selected="true">会话<b id="sessionCount">0</b></button>
+        <button type="button" class="side-tab" id="tabArchived" data-session-tab="archived" role="tab" aria-selected="false">已归档<b id="archiveCount">0</b></button>
+      </div>
+      <button type="button" class="icon-btn side-select-btn" id="selectToggle" title="批量选择会话" aria-label="批量选择会话" aria-pressed="false"><span data-icon="checkCircle"></span></button>
+    </div>
+    <!-- 批量操作栏：只在选择模式出现，替换掉上面的搜索框位置感，避免两套列表操作并列 -->
+    <div class="bulk-bar" id="bulkBar" hidden>
+      <button type="button" class="bulk-all" id="bulkAllBtn" aria-pressed="false">全选</button>
+      <span class="bulk-count" id="bulkCount">已选 0 项</span>
+      <button type="button" class="btn mini" id="bulkArchiveBtn">归档</button>
+      <button type="button" class="btn mini danger" id="bulkDeleteBtn">删除</button>
+      <button type="button" class="icon-btn" id="bulkCancelBtn" title="退出批量选择" aria-label="退出批量选择"><span data-icon="x"></span></button>
+    </div>
+    <div class="session-list" id="sessionList"></div>
+    <div class="side-spacer"></div>
+    <div class="side-actions">
+      <button class="side-link" id="settingsBtn"><span data-icon="sliders"></span><span>设置</span></button>
+      <button class="side-link" id="memoryBtn" title="查看与编辑项目记忆"><span data-icon="brain"></span><span>记忆</span></button>
+      <span class="side-version" id="verLabel">v…</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn" id="menuBtn" title="显示侧栏 · Ctrl B" aria-label="显示侧栏" aria-expanded="true" aria-controls="sidebar"><span data-icon="panel"></span></button>
+      <div class="top-identity" id="topIdentity">
+        <span class="top-kicker">GREEN TIGER</span>
+        <span class="top-session" id="topSessionName">新会话</span>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="icon-btn has-badge" id="workbenchBtn" title="工作台：产物 / 任务 / 日志 · Ctrl+Shift+L" aria-label="打开工作台" aria-pressed="false" aria-controls="inspector"><span data-icon="panelRight"></span><span class="log-badge" id="logBadge" hidden></span></button>
+        <button class="workdir-chip" id="workdirChip" title="选择工作目录" aria-label="选择工作目录"><span data-icon="folder"></span><span id="workdirLabel">选择工作目录</span></button>
+        <button class="btn ghost" id="pauseTopBtn" hidden title="暂停当前任务" aria-label="暂停当前任务"><span data-icon="pause"></span><span class="btn-label">暂停</span></button>
+        <button class="btn danger ghost" id="stopTopBtn" hidden title="停止当前任务" aria-label="停止当前任务"><span data-icon="stop"></span><span class="btn-label">停止</span></button>
+        <!-- 顶栏只留标题与运行态按钮，次要入口统一收进「⋯」溢出菜单 -->
+        <!-- 工具箱：面向普通用户的图形化本机操作台，不聊天也能用（见 ui/js/toolbox.js） -->
+        <button type="button" class="icon-btn" id="toolboxBtn" title="工具箱：全盘搜索 / 体检 / 卸载 / 粉碎" aria-haspopup="dialog" aria-controls="toolboxView"><span data-icon="toolbox"></span></button>
+        <div class="top-more-wrap">
+          <button type="button" class="icon-btn" id="moreBtn" title="更多操作" aria-label="更多操作" aria-haspopup="true" aria-expanded="false" aria-controls="topMenu"><span data-icon="more"></span></button>
+          <div class="top-menu" id="topMenu" role="menu" aria-label="更多操作" hidden>
+            <button type="button" class="menu-item" id="themeBtn" role="menuitem" title="切换主题"><span class="menu-ico" id="themeIco"><span data-icon="sun"></span></span><span class="menu-label">切换主题</span></button>
+            <button type="button" class="menu-item" id="paletteBtn" role="menuitem"><span class="menu-ico" data-icon="command"></span><span class="menu-label">命令面板</span><kbd>Ctrl K</kbd></button>            <button type="button" class="menu-item" id="toolboxItem" role="menuitem"><span class="menu-ico" data-icon="toolbox"></span><span class="menu-label">工具箱</span></button>
+
+          </div>
+        </div>
+      </div>
+    </header>
+    <section class="chat-scroll" id="chatScroll" aria-label="对话">
+      <div class="chat" id="chat"></div>
+    </section>
+    <button class="scroll-bottom" id="scrollBottom" title="滚动到底部" aria-label="滚动到底部"><span data-icon="arrowDown"></span></button>
+    <footer class="dock">
+      <div class="composer-wrap">
+        <div class="composer" id="composer">
+          <!-- 模型选择移到输入框顶部，输入框上方的模型胶囊 -->
+          <div class="model-wrap">
+            <button type="button" class="ds-chip" id="modelBtn" aria-haspopup="true" aria-expanded="false" aria-label="当前模型：未连接，点击切换"><span class="dot" id="dsChipDot"></span><span class="ds-chip-text" id="dsChipText">未连接</span><span class="chip-chev" data-icon="chevronDown"></span></button>
+            <!-- 模型面板同时承载「思考强度」：modelPicker Power Slider，
+                 模型列表由 JS 只重写 #cmpPopItems，强度控件保持静态以免丢事件绑定。 -->
+            <div class="cmp-pop" id="cmpPop" role="group" aria-label="模型与思考强度" hidden>
+              <div id="cmpPopItems"></div>
+              <div class="cmp-effort">
+                <div class="cmp-pop-sep"></div>
+                <div class="cmp-effort-head">思考强度 <span class="effort-current" id="effortCurrent" aria-live="polite">平衡</span></div>
+                <div class="effort-slider" id="effortRange" role="slider" tabindex="0" aria-label="推理强度"
+                     aria-valuemin="0" aria-valuemax="3" aria-valuenow="1" aria-valuetext="平衡 · 速度与推理深度兼顾，适合日常使用。"
+                     data-tip="推理强度：快速 / 平衡 / 深入 / 极致四档。&#10;拖动滑块或用方向键调档；档位越高，分析与交叉检查越多。">
+                  <div class="effort-track">
+                    <div class="effort-fill" id="effortFill"></div>
+                    <div class="effort-thumb" id="effortThumb" tabindex="-1"></div>
+                  </div>
+                </div>
+                <div class="effort-ticks" aria-hidden="true"><span data-eff="0">快速</span><span data-eff="1">平衡</span><span data-eff="2">深入</span><span data-eff="3">极致</span></div>
+                <div class="cmp-effort-hint" id="effortHint">平衡 · 速度与推理深度兼顾，适合日常使用。</div>
+              </div>
+            </div>
+          </div>
+          <div class="edit-banner brain-banner" id="brainBanner" hidden>
+            <span data-icon="alert"></span><span id="brainBannerText">当前为免费测试模型，仅限连通性验证。</span>
+            <button type="button" class="edit-cancel" id="brainBannerClose">知道了</button>
+          </div>
+          <div class="edit-banner" id="editBanner" hidden>
+            <span data-icon="edit"></span><span id="editBannerText">正在编辑消息</span>
+            <button type="button" class="edit-cancel" id="editCancel" title="取消编辑">取消编辑</button>
+          </div>
+          <div class="attachments" id="attachments"></div>
+          <div class="slash-pop" id="slashPop" role="listbox" aria-label="可用命令" hidden></div>
+          <div class="at-pop" id="atPop" role="listbox" aria-label="工作目录文件" hidden></div>
+          <textarea id="input" rows="1" spellcheck="false" aria-label="消息输入框" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="slashPop atPop" placeholder="描述你要做的事…"></textarea>
+          <div class="composer-bar">
+            <div class="composer-left">
+              <!-- 添加能力收进一个入口，向上弹出 -->
+              <div class="add-wrap">
+                <button type="button" class="icon-btn" id="addBtn" title="添加内容" aria-label="添加内容"
+                        aria-haspopup="true" aria-expanded="false" aria-controls="addPop"><span data-icon="plus"></span></button>
+                <div class="add-pop" id="addPop" role="menu" aria-label="添加内容" hidden>
+                  <div class="add-pop-head">添加到对话</div>
+                  <button type="button" class="add-item" id="attachBtn" role="menuitem"><span data-icon="paperclip"></span><span>添加文件…</span></button>
+                  <button type="button" class="add-item" id="addRefBtn" role="menuitem"><span data-icon="file"></span><span>引用工作目录文件</span><kbd>@</kbd></button>
+                  <div class="add-pop-sep"></div>
+                  <button type="button" class="add-item" id="addWorkdirBtn" role="menuitem"><span data-icon="folder"></span><span>打开工作目录</span></button>
+                  <button type="button" class="add-item" id="addPaletteBtn" role="menuitem"><span data-icon="command"></span><span>命令面板</span><kbd>Ctrl K</kbd></button>
+                  <div class="add-pop-sep"></div>
+                  <button type="button" class="add-item" id="paramsBtn" role="menuitem" aria-label="输入参数" aria-expanded="false" aria-controls="cmpParams"><span data-icon="sliders"></span><span>输入参数（权限 / 听写）</span></button>
+                  <button type="button" class="add-item" id="helpBtn" role="menuitem" aria-label="快捷键与输入提示" data-tip="Enter 发送 · Shift+Enter 换行 · / 命令 · @ 引用文件 · Esc 中断。&#10;点击查看完整快捷键表。"><span data-icon="info"></span><span>快捷键速查</span><kbd>Ctrl /</kbd></button>
+                </div>
+              </div>
+            </div>
+            <div class="composer-right">
+              <!-- 输入参数与快捷键速查已收进「+」菜单，输入栏只留主流的两组控件；
+                   模型胶囊已上移到输入框顶部 -->
+              <div class="cmp-params" id="cmpParams" hidden role="group" aria-label="输入参数：权限模式与听写">
+                <div class="params-head"><span>输入参数</span><button type="button" class="params-close" id="paramsClose" aria-label="收起参数"><span data-icon="x"></span></button></div>
+                <div class="param-row">
+                  <label for="modeSelect">权限模式</label>
+                  <select class="cmp-badge mode-select" id="modeSelect" aria-label="权限模式"
+                          data-tip="权限模式：&#10;规划 = 只读分析；逐项确认 = 修改或执行前询问；&#10;自动接受编辑 = 只跳过文件编辑确认；自动执行 = 仍拦截高危操作。">
+                    <option value="plan">规划</option>
+                    <option value="ask">逐项确认</option>
+                    <option value="acceptEdits">自动接受编辑</option>
+                    <option value="auto">自动执行</option>
+                  </select>
+                </div>
+                <div class="param-help">规划只读；逐项确认会在修改前询问；自动接受编辑只跳过编辑确认；自动执行仍拦截高危操作。</div>
+                <!-- 推理强度已并入上方模型面板（思考强度），齿轮里只留权限与听写。 -->
+                <div class="param-row">
+                  <span>听写</span>
+                  <button class="cmp-badge icon-only" id="dictateBtn" aria-label="听写"
+                          data-tip="听写：用麦克风把话说成文字填入输入框。"><span data-icon="mic"></span></button>
+                </div>
+              </div>
+              <button class="send-btn" id="sendBtn" title="发送" aria-label="发送"><span data-icon="send"></span></button>
+            </div>
+          </div>
+        </div>
+        <div class="statusbar">
+          <div class="status-left"><span class="phase-dot" id="phaseDot"></span><span id="phaseText">就绪</span><span class="mode-badge" id="modeBadge"></span></div>
+          <div class="status-mid">
+            <span class="ctxbar"><i id="ctxBarFill"></i></span>
+            <span id="contextText">0 / 80,000</span><span class="sep">·</span><span id="statsText">0 次工具 · 0 轮</span><span class="sep">·</span><span id="gitBranch" class="git-branch" title="当前工作目录 git 分支"></span>
+          </div>
+          <!-- 工作目录完整路径：全界面唯一一处展示，次要文本色 + 最小字号，不抢视觉 -->
+          <div class="status-right"><span class="workdir-path" id="statusWorkdir" title=""></span><span class="run-clock" id="runClock"></span></div>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <aside class="inspector" id="inspector" aria-label="工作台" aria-hidden="true">
+    <header class="inspector-head">
+      <div class="inspector-title" id="inspectorTitle"><span data-icon="panelRight"></span><span>工作台</span></div>
+      <button type="button" class="icon-btn" id="inspectorClose" title="关闭工作台" aria-label="关闭工作台"><span data-icon="x"></span></button>
+    </header>
+    <!-- 工作台三段：产物（本会话生成的文件/图片）、任务（执行状态与统计）、日志 -->
+    <div class="wb-tabs" id="wbTabs" role="tablist" aria-label="工作台分段">
+      <button type="button" class="wb-tab active" data-wb-tab="artifacts" role="tab" aria-selected="true">产物 <b id="wbArtifactCount">0</b></button>
+      <button type="button" class="wb-tab" data-wb-tab="tasks" role="tab" aria-selected="false">任务</button>
+      <button type="button" class="wb-tab" data-wb-tab="sessions" role="tab" aria-selected="false">对话 <b id="wbSessionCount">0</b></button>
+      <button type="button" class="wb-tab" data-wb-tab="logs" role="tab" aria-selected="false">日志 <b id="wbLogCount">0</b></button>
+    </div>
+    <div class="inspector-body" id="inspectorBody" role="tabpanel"></div>
+    <footer class="inspector-foot"><span>GreenTiger · <span id="inspectorVer">工作台</span></span><span>Ctrl+Shift+L</span></footer>
+  </aside>
+
+</div>
+<div class="scrim" id="scrim"></div>
+<div id="dialogRoot"></div>
+<div id="paletteRoot"></div>
+<div id="approvalRoot"></div>
+<div class="toasts" id="toasts" role="status" aria-live="polite" aria-atomic="false"></div>
+<div class="gt-tip" id="gtTip" role="tooltip" hidden></div>
+<!-- 工具箱：命令舞台式图形操作台。卡片对应 /api/toolbox/*，危险操作由 toolbox.js 弹确认层后带 confirm 提交 -->
+<div class="tb-overlay" id="toolboxView" hidden role="dialog" aria-modal="true" aria-labelledby="toolboxTitle">
+  <div class="tb-stage">
+    <header class="tb-hero">
+      <div class="tb-heading">
+        <span class="tb-eyebrow">GREEN TIGER · TOOLBOX</span>
+        <h2 id="toolboxTitle">工具箱</h2>
+        <span class="tb-sub">本机常用操作，点开就能用，不需要会聊天</span>
+      </div>
+      <button type="button" class="tb-close" id="toolboxCloseBtn" title="返回（Esc）" aria-label="返回"><span data-icon="x"></span></button>
+    </header>
+    <div class="tb-scroll">
+      <div class="tb-home" id="tbHome">
+        <div class="tb-group-label">本机工具<span>4 项 · 全部在本机执行</span></div>
+        <button type="button" class="tb-card" data-tb="search">
+          <span class="tb-card-ico"><span data-icon="search"></span></span>
+          <span class="tb-card-body"><span class="tb-card-title">极速搜索</span><span class="tb-card-desc">按名字、类型或大小搜全盘文件，找到后直接定位到文件夹</span></span>
+          <span class="tb-card-key">1</span>
+          <span class="tb-card-go" data-icon="arrowRight"></span>
+        </button>
+        <button type="button" class="tb-card" data-tb="scan">
+          <span class="tb-card-ico"><span data-icon="shield"></span></span>
+          <span class="tb-card-body"><span class="tb-card-title">本机体检</span><span class="tb-card-desc">磁盘、缓存、大文件与自启项，先看清再清理</span></span>
+          <span class="tb-card-key">2</span>
+          <span class="tb-card-go" data-icon="arrowRight"></span>
+        </button>
+        <button type="button" class="tb-card" data-tb="uninstall">
+          <span class="tb-card-ico"><span data-icon="trash"></span></span>
+          <span class="tb-card-body"><span class="tb-card-title">卸载软件</span><span class="tb-card-desc">读取系统软件清单，打开软件自己的标准卸载程序</span></span>
+          <span class="tb-card-key">3</span>
+          <span class="tb-card-go" data-icon="arrowRight"></span>
+        </button>
+        <button type="button" class="tb-card" data-tb="shred">
+          <span class="tb-card-ico"><span data-icon="archive"></span></span>
+          <span class="tb-card-body"><span class="tb-card-title">文件粉碎</span><span class="tb-card-desc">三趟覆写后删除敏感文件，不进回收站，无法恢复</span></span>
+          <span class="tb-card-key">4</span>
+          <span class="tb-card-go" data-icon="arrowRight"></span>
+        </button>
+      </div>
+      <div class="tb-foot">危险操作都会二次确认 · 按 <kbd>Esc</kbd> 返回 · 数字键 <kbd>1-4</kbd> 快速进入</div>
+      <div class="tb-panel" id="tbPanel" hidden>
+        <div class="tb-panel-head">
+          <button type="button" class="tb-back" id="tbBackBtn" title="返回（Esc）"><span data-icon="arrowLeft"></span><span>返回</span></button>
+          <h3 id="tbPanelTitle"></h3>
+        </div>
+        <div class="tb-panel-body" id="tbPanelBody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 沉浸式花园：主页园景卡片的放大版，全屏画布 + 顶部控制条 -->
+<div class="garden-overlay" id="gardenView" hidden role="dialog" aria-modal="true" aria-labelledby="gardenTitle" aria-describedby="gardenStatusText">
+  <canvas id="gardenCanvas" class="garden-canvas" aria-label="绿虎花园自然生长画面"></canvas>
+  <div class="garden-overlay-wash" aria-hidden="true"></div>
+  <div class="garden-overlay-ui">
+    <header class="garden-overlay-bar">
+      <div class="garden-overlay-heading"><span class="garden-eyebrow">GREEN TIGER · GARDEN</span><h2 id="gardenTitle">绿虎花园</h2><span class="garden-overlay-status" id="gardenStatusText" role="status">微风轻拂 · 慢慢生长</span></div>
+      <div class="garden-toolbar" aria-label="花园控制">
+        <button type="button" class="btn ghost garden-tool" id="gardenWindBtn" aria-pressed="false" title="切换微风"><span data-icon="wind"></span><span>微风</span></button>
+        <button type="button" class="btn ghost garden-tool" id="gardenReplayBtn" title="换一片新花园"><span data-icon="refresh"></span><span>换一片</span></button>
+        <button type="button" class="btn ghost garden-tool" id="gardenPauseBtn" aria-pressed="false" title="暂停生长"><span data-icon="pause"></span><span id="gardenPauseLabel">暂停</span></button>
+        <button type="button" class="btn ghost garden-tool garden-close" id="gardenCloseBtn" title="返回主页（Esc）"><span data-icon="x"></span><span>返回</span></button>
+      </div>
+    </header>
+    <div class="garden-overlay-foot"><span>移动指针，感受风向</span><span>点按画面，播下一片新种子</span><kbd>Esc</kbd></div>
+  </div>
+</div>
+<script src="/garden.js"></script>
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

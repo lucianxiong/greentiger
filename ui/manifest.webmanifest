@@ -1,0 +1,16 @@
+{
+  "name": "绿虎 (GreenTiger)",
+  "short_name": "绿虎",
+  "description": "绿虎 — 会自然生长的 Windows 桌面代理，DeepSeek 网页版驱动",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f9ee",
+  "theme_color": "#4ca324",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

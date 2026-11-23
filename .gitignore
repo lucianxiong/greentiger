@@ -1,0 +1,43 @@
+# build output
+dist/
+bin/
+obj/
+
+# IDE
+.vs/
+*.user
+*.suo
+*.userprefs
+
+# local tooling / agent workspace
+.workbuddy-ai/
+.workbuddy/
+
+# logs and temp artifacts
+*.log
+*.tmp
+*.bak
+# 开发期的整目录备份（src.bak-3.31.0 / ui.bak-3.30.0 之类），只有本机需要
+*.bak-*/
+
+# eval artifacts
+eval/results-*.jsonl
+
+# node 依赖（tools/ui-e2e.js 需要 playwright-core）
+node_modules/
+
+# Windows 保留设备名误写产物（bash 里把输出重定向到 nul 会生成同名普通文件）
+nul
+
+# 便携模式数据目录：可能落在仓库根或 exe 同级，不能入库（含 config / 会话 / 令牌）
+**/GreenTiger-data/
+
+# 本地快捷方式与历史截图产物不入库
+*.lnk
+ask-user-dialog-*.png
+
+# 发布打包产物（node .zwork/pack.js 生成）与发帖材料
+release/
+
+# 编译器残留（csc 中断时会在 dist 留 CSC*.TMP）
+dist/*.TMP

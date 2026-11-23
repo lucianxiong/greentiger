@@ -1,0 +1,134 @@
+/* 绿虎（GreenTiger）统一主题令牌：控制台、工作台、交互实验室共用。
+ * 3.31.0 起只保留一套配色：绿 / 黑 / 白，但不再用「纯灰 + 一点绿」，
+ * 改成带极浅草木底色的黑白体系：底色和中性墨都略微偏绿，绿色负责强调与动效。
+ * 语义色不再是红黄蓝，而是「黑白反相 + 绿色提示」——
+ * 错误与危险用高对比黑白（--red 已改为墨色，名字保留是为了不动 35 处调用点），
+ * 警告并入绿色，信息并入次级灰。 */
+:root{
+  /* 浅色 · 纸白园林：主区近白微绿，侧栏更沉一层，卡片纯白浮起。
+     绿色只做品牌强调色（Logo / 发送键 / 选中态 / 动效），不参与大面积铺色。 */
+  --bg:#f6f8f2;
+  --bg-side:#eef2e8;
+  --bg-elev:#ffffff;
+  --bg-soft:#f0f4ea;
+  --bg-hover:#e7eedf;
+  --bg-active:#dde8d3;
+  --line:#dfe6d7;
+  --line-soft:#e9eee3;
+  --line-strong:#c8d3bd;
+  --text:#0b0e08;
+  --text-dim:#4f5b48;
+  --text-faint:#7c8874;
+  --accent:#2f7f12;
+  --accent-strong:#24660c;
+  --accent-ink:#f7fff2;
+  --accent-soft:rgba(47,127,18,.12);
+  --accent-rgb:47,127,18;
+  --green:#2f7f12;
+  --green-soft:rgba(47,127,18,.12);
+  /* —— 中性控件令牌：常规状态 / 次要提示 / 工具按钮的中性墨色 —— */
+  --neutral-ink:#2c3527;
+  --neutral-line:#c9d3bf;
+  --neutral-fill:rgba(12,24,8,.05);
+  --neutral-fill-strong:rgba(12,24,8,.10);
+  --neutral-rgb:44,53,39;
+  /* 语义位保留原名（调用点太多），色值全部收进绿黑白：red=墨黑、amber=绿、blue=灰 */
+  --red:#12160f;
+  --red-soft:#eef1ea;
+  --red-ink:#ffffff;
+  --amber:#2f7f12;
+  --amber-soft:rgba(47,127,18,.12);
+  --blue:#4f5b48;
+  --blue-soft:#eef1ea;
+  --user-bg:#e9f0e2;
+  --code-bg:#f1f5ec;
+  --code-text:#151a12;
+  --shadow:0 24px 64px rgba(18,34,10,.16);
+  --shadow-sm:0 6px 18px rgba(18,34,10,.08);
+  --shadow-lift:0 18px 44px rgba(18,34,10,.14);
+  --bg-glass:rgba(246,248,242,.82);
+  --bg-fade:rgba(246,248,242,0);
+  --sans:"Segoe UI Variable Text","Segoe UI",system-ui,"Microsoft YaHei UI","Microsoft YaHei",-apple-system,Helvetica,Arial,sans-serif;
+  /* 数字与符号的字形兜底：WebView2 缺 Cascadia 时依次回退，不会被渲染成空白 */
+  --mono:"Cascadia Code","Cascadia Mono","JetBrains Mono",Consolas,"Courier New",ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* —— 几何与密度：终端的方正感，一套刻度全站只引用不硬写 —— */
+  --r-xs:3px;--r-sm:4px;--r-md:6px;--r-lg:9px;--r-xl:12px;
+  --col-w:920px;
+  /* —— 统一架构：弹窗 / 命令面板 / 工具箱 / 工作台共用同一套外壳刻度 —— */
+  --surface-pad-x:24px;
+  --surface-pad-y:20px;
+  --surface-gap:14px;
+  /* —— 动效令牌：参考「按压回弹 / 液态滑块 / 底部抽屉」的弹簧曲线 ——
+     快交互用 spring，内容入场用 out，抽屉/翻面用 slow；全站只引用不硬写。 */
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --ease-out:cubic-bezier(.22,.8,.25,1);
+  --ease-soft:cubic-bezier(.2,.75,.25,1);
+  --dur-fast:.14s;
+  --dur:.24s;
+  --dur-slow:.42s;
+  /* —— 语法高亮：绿黑白同族，靠明度与字重分层，不再出现橙/紫/蓝 —— */
+  --hl-key:#2f7f12;
+  --hl-str:#5f6f52;
+  --hl-num:#245f0e;
+  --hl-com:#7c8874;
+  --hl-fn:#2f6b17;
+  --hl-type:#55603f;
+  --hl-op:#64705d;
+  --hl-add:#2f7f12;
+  --hl-del:#0b0e08;
+}
+html[data-theme="dark"]{
+  /* 深色模式 · 夜林墨黑：主区是近黑，侧栏更深，浮层带一点墨绿。
+   * 绿色保留为品牌强调色（Logo / 发送键 / 状态点），高亮用同一套绿阶。 */
+  --bg:#0b0d09;
+  --bg-side:#070806;
+  --bg-elev:#141710;
+  --bg-soft:#181c13;
+  --bg-hover:#20251a;
+  --bg-active:#29301f;
+  --line:#262c1f;
+  --line-soft:#1a1e15;
+  --line-strong:#3a432f;
+  --text:#f1f4eb;
+  --text-dim:#b3bba5;
+  --text-faint:#818a74;
+  --accent:#8be85a;
+  --accent-strong:#a6f47f;
+  --accent-ink:#061f04;
+  --accent-soft:rgba(139,232,90,.14);
+  --accent-rgb:139,232,90;
+  --green:#8be85a;
+  --green-soft:rgba(139,232,90,.14);
+  /* 深色下中性墨色刻意提亮：在墨绿黑底上对比度充足，小字不发糊。 */
+  --neutral-ink:#e8ecdf;
+  --neutral-line:#3a432f;
+  --neutral-fill:rgba(255,255,255,.06);
+  --neutral-fill-strong:rgba(255,255,255,.12);
+  --neutral-rgb:232,236,223;
+  /* 语义位在深色下同样只走绿黑白：red=墨白（错误用反相高对比）、amber=品牌绿、blue=次级灰 */
+  --red:#f1f4eb;
+  --red-soft:#20251a;
+  --red-ink:#11160d;
+  --amber:#8be85a;
+  --amber-soft:rgba(139,232,90,.14);
+  --blue:#b3bba5;
+  --blue-soft:#181c13;
+  --user-bg:#1c2215;
+  --code-bg:#11140d;
+  --code-text:#e4e9dc;
+  --shadow:0 24px 64px rgba(0,0,0,.55);
+  --shadow-sm:0 6px 18px rgba(0,0,0,.32);
+  --shadow-lift:0 18px 44px rgba(0,0,0,.46);
+  --bg-glass:rgba(11,13,9,.82);
+  --bg-fade:rgba(11,13,9,0);
+  /* 深色高亮：同一套绿黑白，靠明度分层而不是色相 */
+  --hl-key:#8be85a;
+  --hl-str:#cfe8b5;
+  --hl-num:#a6f47f;
+  --hl-com:#7a8a70;
+  --hl-fn:#c8f5a8;
+  --hl-type:#d6e8c6;
+  --hl-op:#9aa895;
+  --hl-add:#8be85a;
+  --hl-del:#ffffff;
+}

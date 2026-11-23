@@ -1,0 +1,117 @@
+/* 绿虎主页花园与沉浸式花园画布。 */
+.garden-canvas{
+  position:absolute;inset:0;z-index:0;display:block;width:100%;height:100%;
+  touch-action:pan-y;cursor:default;outline:none
+}
+.home-empty{gap:8px}
+/* 欢迎语独占一行居中：以前它和花园并排，左边还挂着一个 logo、上面一行英文小标、
+   下面一行小字介绍——三样都在重复同一句话，全部去掉后只留标题本身。 */
+.home-empty .home-title{
+  font-size:23px;font-weight:640;letter-spacing:-.025em;line-height:1.25;margin:0 0 16px;text-align:center;color:var(--text)
+}
+/* 主页花园是正方形小景：宽度同时受窗口高度与像素上限约束。
+   固定 56px，全项目唯一来源（任何媒体查询都不再覆盖——以前四条规则在
+   不同窗口尺寸下各自生效，是「半屏/全屏大小不一致」的真正根源）；
+   随界面缩放等比伸缩；min(100%,…) 只防溢出。 */
+.home-garden{
+  position:relative;isolation:isolate;overflow:hidden;flex:0 0 auto;
+  width:min(100%,56px);aspect-ratio:1/1;margin:2px 0 12px;
+  border:1px solid rgba(var(--accent-rgb),.22);border-radius:18px;
+  background:#a9cfa0;box-shadow:0 12px 28px rgba(34,83,47,.12);
+  cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease
+}
+/* 整张卡片都能点开花园：小尺寸下那个胶囊按钮只是提示，不该是唯一热区。 */
+.home-garden:hover{transform:translateY(-1px);border-color:rgba(var(--accent-rgb),.4);box-shadow:0 16px 34px rgba(34,83,47,.18)}
+.home-garden:focus-within{border-color:rgba(var(--accent-rgb),.5);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.14),0 14px 30px rgba(34,83,47,.16)}
+.garden-home-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;cursor:pointer}
+.garden-home-shade{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:rgba(5,20,11,.12)
+}
+/* 主页统一单色：浅色主题只压一层更淡的纯色，不再叠渐变 */
+html:not([data-theme="dark"]) .garden-home-shade{
+  background:rgba(4,18,10,.07)
+}
+.garden-home-content{
+  position:absolute;z-index:2;left:0;right:0;bottom:0;display:flex;justify-content:center;
+  padding:0 7px 7px;pointer-events:none
+}
+/* 选择器必须带上 .home-garden：index.html 里的 <style> 排在 garden.css 之后，
+   光写 .garden-open 会被 .btn 同权重覆盖成默认按钮底，浅色胶囊一直没生效过。
+   底色用深色玻璃而不是白：浅色主题下地面也是浅绿，白胶囊会糊在草地里。 */
+.home-garden .garden-open{
+  height:23px;flex:0 0 auto;padding:0 9px;border-radius:999px;font-size:10px;
+  border-color:rgba(255,255,255,.26);background:rgba(8,22,14,.5);color:#f4f9f0;
+  box-shadow:0 3px 12px rgba(0,0,0,.22);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  /* 主页只留一个干净的园景标记：入口胶囊平时隐去，悬浮/聚焦整张卡片时才浮现 */
+  opacity:0;transition:opacity .16s ease;pointer-events:auto
+}
+.home-garden .garden-open:hover{background:rgba(8,22,14,.72);border-color:rgba(255,255,255,.42);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.3);opacity:1}
+.home-garden:hover .garden-open,.home-garden:focus-within .garden-open{opacity:1}
+.home-garden .garden-open .ico{width:11px;height:11px;color:var(--accent)}
+/* 卡片一变小，文字胶囊会占掉六成宽度压住花草，只留圆形图标（有 title / aria-label 兜底）。 */
+@media (max-width:820px),(max-height:840px){
+  .home-garden .garden-open{width:23px;height:23px;padding:0;border-radius:50%;justify-content:center}
+  .home-garden .garden-open>span:not(.ico){display:none}
+  .home-garden .garden-open .ico{width:13px;height:13px}
+}
+/* 深色下花园卡片必须换成暗绿底：默认的 #deefd4→#93bf8d 亮绿渐变会在纯黑页面上非常突兀 */
+html[data-theme="dark"] .home-garden{
+  background:#1a2d21;
+  border-color:rgba(159,210,155,.2);box-shadow:0 18px 46px rgba(0,0,0,.24)
+}
+
+.garden-overlay{
+  position:fixed;inset:0;z-index:150;overflow:hidden;isolation:isolate;
+  background:#102719;color:#f3f6ef;animation:gardenEnter .42s cubic-bezier(.2,.75,.25,1) both
+}
+.garden-overlay-wash{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:rgba(3,14,9,.18)
+}
+.garden-overlay-ui{position:absolute;z-index:2;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:22px 26px;pointer-events:none}
+.garden-overlay-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 16px;
+  border:1px solid rgba(255,255,255,.18);border-radius:18px;background:rgba(10,25,16,.48);
+  box-shadow:0 12px 36px rgba(0,0,0,.16);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);pointer-events:auto
+}
+.garden-overlay-heading{min-width:0;display:flex;flex-direction:column;gap:3px}
+.garden-eyebrow{
+  display:block;color:rgba(244,248,237,.62);font:600 8.5px/1.3 var(--mono);letter-spacing:.13em
+}
+.garden-overlay-heading h2{margin:0;font-size:18px;font-weight:620;letter-spacing:-.02em;line-height:1.25}
+.garden-overlay-status{font-size:10.5px;color:rgba(244,248,237,.7);font-variant-numeric:tabular-nums}
+.garden-toolbar{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.garden-tool{height:34px;border-color:rgba(255,255,255,.16)!important;background:rgba(255,255,255,.08)!important;color:#f3f6ef!important}
+.garden-tool:hover{background:rgba(255,255,255,.16)!important;border-color:rgba(255,255,255,.32)!important;color:#fff!important}
+.garden-tool .ico{width:14px;height:14px}
+.garden-tool[aria-pressed="true"]{background:rgba(188,224,155,.2)!important;border-color:rgba(188,224,155,.4)!important}
+.garden-close{margin-left:3px}
+.garden-overlay-foot{display:flex;align-items:center;justify-content:center;gap:15px;color:rgba(246,250,239,.68);font-size:10.5px;text-shadow:0 1px 8px rgba(0,0,0,.4);pointer-events:none}
+.garden-overlay-foot kbd{padding:2px 6px;border:1px solid rgba(255,255,255,.32);border-radius:5px;color:rgba(246,250,239,.8);font:10px var(--mono)}
+@keyframes gardenEnter{from{opacity:0;transform:scale(1.012)}to{opacity:1;transform:none}}
+
+@media (max-width:760px){
+  .home-title{font-size:21px}
+  .garden-home-content{padding:0 6px 6px}
+  .garden-overlay-ui{padding:12px}
+  .garden-overlay-bar{align-items:flex-start;flex-direction:column;gap:12px;padding:12px;border-radius:15px}
+  .garden-toolbar{width:100%;justify-content:space-between}
+  .garden-tool{flex:1;padding:0 8px}
+  .garden-close{flex:0 0 auto}
+  .garden-overlay-foot{flex-wrap:wrap;gap:8px;font-size:9.5px}
+}
+@media (max-width:460px){
+  .home-title{font-size:19px}
+  .garden-overlay-foot span:first-child{display:none}
+}
+@media (max-height:500px){
+  .home-title{font-size:19px}
+  .home-empty{gap:4px}
+  .garden-overlay-ui{padding:10px 16px}
+  .garden-overlay-bar{padding:9px 12px}
+}
+@media (prefers-reduced-motion:reduce){
+  .garden-overlay{animation:none}
+  .garden-canvas{cursor:default}
+}

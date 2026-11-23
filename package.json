@@ -1,0 +1,30 @@
+{
+  "name": "greentiger",
+  "version": "3.32.0",
+  "private": true,
+  "description": "GreenTiger 桌面 Agent：只依赖一个 OpenAI 兼容模型端点（云端或本机），唯一 node 依赖是 playwright-core（用本机 Edge，不下载浏览器）",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check:version": "node tools/check-version.js",
+    "bump:version": "node tools/bump-version.js",
+    "check:deps": "node tools/check-deps.js",
+    "build": "powershell -ExecutionPolicy Bypass -File build.ps1",
+    "smoke": "node tools/smoke.js",
+    "recovery": "node tools/recovery-smoke.js",
+    "regression": "node tools/regression.js",
+    "test": "node tools/smoke.js && node tools/recovery-smoke.js && node tools/regression.js",
+    "test:all": "node tools/check-version.js && node tools/check-deps.js && npm run check:ui && node tools/smoke.js && node tools/recovery-smoke.js && node tools/regression.js && node tools/ui-e2e.js",
+    "verify:all": "node tools/verify-all.js",
+    "e2e": "node tools/ui-e2e.js",
+    "shot": "node tools/ui-shot.js",
+    "check:ui": "node tools/_check_inline_ui.js",
+    "eval": "node tools/eval.js",
+    "eval:run": "node tools/eval.js --run",
+    "eval:report": "node tools/eval.js --report"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.64.1"
+  }
+}

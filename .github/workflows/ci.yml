@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+# 项目只需 Windows + 系统自带的 .NET Framework 4.x csc.exe，不需要 Visual Studio / NuGet。
+# 界面真机端到端与截图会启动 WebView2 + 本机 Edge，留给本地 `npm run verify:all`，
+# 不放在 CI：那需要图形会话，且与 runner 的浏览器版本强耦合。
+jobs:
+  verify:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dev dependencies
+        run: npm ci
+
+      - name: Version + embedded asset consistency
+        run: npm run check:version
+
+      # 先构建：check:deps 会检查 dist/GreenTiger.exe 是否就绪；build.ps1 自身也带一致性门禁。
+      - name: Build (system csc.exe, zero NuGet)
+        run: npm run build
+
+      - name: Dependency self-check
+        run: npm run check:deps
+
+      - name: Inline UI static checks
+        run: npm run check:ui
+
+      # smoke + recovery + regression（后者含 build / --self-test / 冒烟 / 恢复 / 评测 / 影子运行）
+      - name: Full regression
+        run: npm test
