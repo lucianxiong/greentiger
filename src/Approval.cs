@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -142,6 +143,26 @@ namespace GreenTiger
                 List<string> sorted = new List<string>(list);
                 sorted.Sort(StringComparer.Ordinal);
                 return string.Join(",", sorted.ToArray());
+            }
+            // 修复：JavaScriptSerializer.DeserializeObject 对 JSON 数组给的是 object[]（或 ArrayList），
+            // 原来只判 List<string>，该分支恒不命中，于是所有数组参数都落到 Convert.ToString(value)
+            // 变成同一个 "System.Object[]" 字符串——不同参数的指纹碰撞，可能复用同一张审批票据。
+            // 这里对数组逐元素递归规范化后排序拼接，保证不同数组得到不同指纹。
+            object[] array = value as object[];
+            if (array != null)
+            {
+                List<string> parts = new List<string>(array.Length);
+                for (int i = 0; i < array.Length; i++) parts.Add(CanonicalValue(array[i]));
+                parts.Sort(StringComparer.Ordinal);
+                return string.Join(",", parts.ToArray());
+            }
+            ArrayList arrayList = value as ArrayList;
+            if (arrayList != null)
+            {
+                List<string> parts = new List<string>(arrayList.Count);
+                foreach (object item in arrayList) parts.Add(CanonicalValue(item));
+                parts.Sort(StringComparer.Ordinal);
+                return string.Join(",", parts.ToArray());
             }
             return Convert.ToString(value);
         }

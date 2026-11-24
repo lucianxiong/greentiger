@@ -1048,6 +1048,16 @@ namespace GreenTiger
                 BrainReply bareReply = new BrainReply();
                 BrainReply.ParseUsage(bareResp, bareReply);
                 check("usage cached absent zero", bareReply.CachedTokens == 0 && bareReply.PromptTokens == 10, "");
+                // 流式路径：SseAccumulator 传进来的是 chunk["usage"]（内层对象），再取 "usage" 曾恒为 null，
+                // 导致流式 token 统计永远是 0。修复后内层对象应能直接解析。
+                Dictionary<string, object> innerUsage = new Dictionary<string, object>();
+                innerUsage["prompt_tokens"] = 123L;
+                innerUsage["completion_tokens"] = 45L;
+                BrainReply innerReply = new BrainReply();
+                BrainReply.ParseUsage(innerUsage, innerReply);
+                check("usage inner object parsed (streaming)",
+                    innerReply.PromptTokens == 123 && innerReply.CompletionTokens == 45,
+                    innerReply.PromptTokens + "/" + innerReply.CompletionTokens);
 
                 // 2) 质检钩子：好文件静默、坏文件确定性报错、不匹配扩展不适用、非写入工具不适用
                 string hookWork = Path.Combine(AppPaths.Root, "selftest-hooks");
@@ -1844,6 +1854,14 @@ namespace GreenTiger
                 ApprovalStore.HashArgs("{\"a\":1,\"b\":2}") == ApprovalStore.HashArgs("{\"b\":2,\"a\":1}"), "");
             check("approval hash content sensitive",
                 ApprovalStore.HashArgs("{\"a\":1}") != ApprovalStore.HashArgs("{\"a\":2}"), "");
+            // 数组参数：曾经因为只判 List<string> 而让所有数组退化同一指纹（票据可被复用）。
+            // 修复后不同数组必须产生不同指纹，且同元素不同顺序归一。
+            check("approval hash array distinct",
+                ApprovalStore.HashArgs("{\"paths\":[\"a\",\"b\"]}") != ApprovalStore.HashArgs("{\"paths\":[\"c\",\"d\"]}"),
+                "不同数组参数必须得到不同指纹");
+            check("approval hash array order insensitive",
+                ApprovalStore.HashArgs("{\"paths\":[\"a\",\"b\"]}") == ApprovalStore.HashArgs("{\"paths\":[\"b\",\"a\"]}"),
+                "同一数组仅顺序不同应归一");
 
             // 4) 过期：过期的批准不能用，Expire 会把它标成 expired
             Session s4 = new Session();

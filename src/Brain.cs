@@ -54,7 +54,17 @@ namespace GreenTiger
         {
             if (response == null || reply == null) return;
             Dictionary<string, object> usage = Json.Object(response, "usage");
-            if (usage == null) return;
+            if (usage == null)
+            {
+                // 修复：流式路径下调用方传的是 SseAccumulator.UsageObject，它已经是 chunk["usage"]
+                // 这个内层对象；再取一次 "usage" 恒为 null，导致流式场景 token 统计永远是 0。
+                // 若传入对象本身带 token 字段，就直接当 usage 用（非流式的 {"usage":{...}} 不受影响）。
+                if (response.ContainsKey("prompt_tokens") || response.ContainsKey("completion_tokens") ||
+                    response.ContainsKey("total_tokens") || response.ContainsKey("cached_tokens"))
+                    usage = response;
+                else
+                    return;
+            }
             reply.PromptTokens = Json.Long(usage, "prompt_tokens", 0);
             reply.CompletionTokens = Json.Long(usage, "completion_tokens", 0);
             // 3.22.0 缓存命中：OpenAI 系在 prompt_tokens_details.cached_tokens，部分网关平铺在 usage 根上
