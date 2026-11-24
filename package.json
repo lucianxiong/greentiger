@@ -1,6 +1,6 @@
 {
   "name": "greentiger",
-  "version": "3.32.0",
+  "version": "3.32.1",
   "private": true,
   "description": "GreenTiger 桌面 Agent：只依赖一个 OpenAI 兼容模型端点（云端或本机），唯一 node 依赖是 playwright-core（用本机 Edge，不下载浏览器）",
   "engines": {

@@ -9,7 +9,7 @@ namespace GreenTiger
     public static class AppInfo
     {
         public const string Name = "绿虎";
-        public const string Version = "3.32.0";
+        public const string Version = "3.32.1";
     }
 
     /// <summary>所有落盘位置。默认在 %APPDATA%\GreenTiger，便携模式可用 --data-dir 覆盖。</summary>
